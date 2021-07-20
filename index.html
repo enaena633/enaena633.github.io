@@ -1,84 +1,38 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style> /* set the CSS */
+<head>
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2px;
-}
+<!-- Load d3 source scripts -->
+  <script src="https://d3js.org/d3.v4.min.js" type="text/JavaScript"></script> 
+  <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
 
-</style>
-<body>
+<!-- style section-->
+  <style>
+     .axis path{
+         stroke:black;
+         stroke-width:2px ;
+     }   
 
-<!-- load the d3.js library -->    	
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
+     .axis line{
+         stroke: black;
+         stroke-width: 1.5px;
+     } 
+  
+     .axis text{
+         fill: black;
+         font-weight: bold;
+         font-size: 14px;
+         font-family:"Arial Black", Gadget, sans-serif;
+     } 
 
-// set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+     .legend text{
+         fill:  black;
+         font-family:"Arial Black", Gadget, sans-serif;
+     }
+  </style>
+  
+</head>
 
-// parse the date / time
-var parseTime = d3.timeParse("%d-%b-%y");
-
-	
-//scale xAxis 
-var xExtent = d3.extent(data, d => d.year);
-xScale = d3.scaleTime().domain(xExtent).range([leftMargin, 900])
-
-//scale yAxis
-var yMax=d3.max(data,d=>d.spending)
-yScale = d3.scaleLinear().domain([0, yMax+topMargin]).range([600, 0])
-	
-//draw xAxis and xAxis label
-xAxis = d3.axisBottom()
-    .scale(xScale)
-
-d3.select("svg")
-    .append("g")
-    .attr("class", "axis")
-    .attr("transform", "translate(0,620)")
-    .call(xAxis)
-    .append("text")
-    .attr("x", (900+70)/2) //middle of the xAxis
-    .attr("y", "50") // a little bit below xAxis
-    .text("Year")
-
-//yAxis and yAxis label
-yAxis = d3.axisLeft()
-    .scale(yScale)
-    .ticks(10)
-
-d3.select('svg')
-    .append("g")
-    .attr("class", "axis")
-    .attr("transform", `translate(${leftMargin},20)`) //use variable in translate
-    .call(yAxis)
-    .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("x", "-150")
-    .attr("y", "-50")
-    .attr("text-anchor", "end")
-    .text("US Media Ad Spending (Billions)")
-
-
-// append the svg obgect to the body of the page
-// appends a 'group' element to 'svg'
-// moves the 'group' element to the top left margin
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-// Get the data
-d3.csv("clean_data_total_cases.csv", function(error, data) {
-  if (error) throw error;
-
-
-
-</script>
+<body onload="lineChart()">
+<!-- svg canvas-->
+  <svg width="1200" height="750" style="background-image: url('https://etc.usf.edu/presentations/backgrounds/grid/grid_04/1304m.gif');">
+  </svg>
 </body>
