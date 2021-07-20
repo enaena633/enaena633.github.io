@@ -43,14 +43,14 @@ d3.csv("clean_data_total_cases.csv", function(data){
 
 //use .nest()function to group data so the line can be computed for each group
 var sumstat = d3.nest() 
-    .key(d => d.media)
+    .key(d => d.location)
     .entries(data);
 
 console.log(sumstat)
 
 //set color pallete for different vairables
-var mediaName = sumstat.map(d => d.key) 
-var color = d3.scaleOrdinal().domain(mediaName).range(colorbrewer.Set2[6])
+var locationName = sumstat.map(d => d.key) 
+var color = d3.scaleOrdinal().domain(locationName).range(colorbrewer.Set2[6])
 
 //select path - three types: curveBasis,curveStep, curveCardinal
 d3.select("svg")
@@ -62,8 +62,8 @@ d3.select("svg")
     .append("path")
     .attr("d", function (d) {
         return d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScale(d.spending)).curve(d3.curveCardinal)
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.total_cases)).curve(d3.curveCardinal)
             (d.values)
     })
     .attr("fill", "none")
@@ -79,9 +79,9 @@ d3.select("svg")
     .enter()
     .append("circle")
     .attr("r", 6)
-    .attr("cx", d => xScale(d.year))
-    .attr("cy", d => yScale(d.spending))
-    .style("fill", d => color(d.media))
+    .attr("cx", d => xScale(d.date))
+    .attr("cy", d => yScale(d.total_cases))
+    .style("fill", d => color(d.location))
 
 //append legends
 var legend = d3.select("svg")
@@ -108,7 +108,7 @@ d3.select("svg")
     .attr("x", 485)
     .attr("y", 30)
     .attr("text-anchor", "middle")
-    .text("US Total Media Ad Spending, by Media, 2016-2022")
+    .text("US Total location Ad total_cases, by location, 2016-2022")
     .style("fill", "black")
     .style("font-size", 28)
     .style("font-family", "Arial Black")
