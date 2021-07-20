@@ -33,13 +33,12 @@
 
 <script>
 
-<body onload="lineChart()">
+<body>
 <!-- svg canvas-->
   <svg width="1200" height="750" style="background-image: url('https://etc.usf.edu/presentations/backgrounds/grid/grid_04/1304m.gif');">
   </svg>
 </body>
 
-function lineChart(data) {
 d3.csv("clean_data_total_cases.csv", function(data){
 
 //use .nest()function to group data so the line can be computed for each group
@@ -124,6 +123,5 @@ d3.select("svg")
     .style("font-size", 14)
     .style("font-family", "Arial Black")
 })
-}
 
 </script>
