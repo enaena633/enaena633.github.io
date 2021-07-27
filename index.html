@@ -5,7 +5,7 @@
   <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
 
 <!-- style section-->
-  <style>
+  <!-- <style>
      .axis path{
          stroke:black;
          stroke-width:2px ;
@@ -27,102 +27,175 @@
          fill:  black;
          font-family:"Arial Black", Gadget, sans-serif;
      }
-  </style>
+  </style> -->
   
 </head>
 
-
 <body>
-<!-- svg canvas-->
-  <svg width="1200" height="750" style="background-image: url('https://etc.usf.edu/presentations/backgrounds/grid/grid_04/1304m.gif');">
-  </svg>
+    <!-- svg canvas-->
+      <svg width="1200" height="750" style="background-image: url('https://etc.usf.edu/presentations/backgrounds/grid/grid_04/1304m.gif');">
+      </svg>
 </body>
-  
+
 <script>
 
-d3.csv("clean_data_total_cases.csv", function(data){
 
-//use .nest()function to group data so the line can be computed for each group
-var sumstat = d3.nest() 
+chart = {
+
+    var width = 500;
+    var height = 500;
+
+    //Create SVG element
+    const svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+    svg.append("g")
+        .call(xAxis);
+
+    svg.append("g")
+        .call(yAxis);
+
+    const path = svg.append("g")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .selectAll("path")
+        .data(data.series)
+        .join("path")
+        .style("mix-blend-mode", "multiply")
+        .attr("d", d => line(d.values));
+
+    svg.call(hover, path);
+
+    return svg.node();
+}
+
+
+d3.csv("clean_data_total_cases.csv", function(data) {
+    var sumstat = d3.nest() 
     .key(d => d.location)
     .entries(data);
 
-console.log(sumstat)
+    console.log(sumstat)
 
-//set color pallete for different vairables
-var locationName = sumstat.map(d => d.key) 
-var color = d3.scaleOrdinal().domain(locationName).range(colorbrewer.Set2[6])
+    //set color pallete for different vairables
+    var locationName = sumstat.map(d => d.key) 
+    var color = d3.scaleOrdinal().domain(locationName).range(colorbrewer.Set2[8])
 
-//select path - three types: curveBasis,curveStep, curveCardinal
-d3.select("svg")
-    .selectAll(".line")
-    .append("g")
-    .attr("class", "line")
-    .data(sumstat)
-    .enter()
-    .append("path")
-    .attr("d", function (d) {
-        return d3.line()
-            .x(d => xScale(d.date))
-            .y(d => yScale(d.total_cases)).curve(d3.curveCardinal)
-            (d.values)
-    })
-    .attr("fill", "none")
-    .attr("stroke", d => color(d.key))
-    .attr("stroke-width", 2)
+    //select path - three types: curveBasis,curveStep, curveCardinal
+    d3.select("svg")
+        .selectAll(".line")
+        .append("g")
+        .attr("class", "line")
+        .data(sumstat)
+        .enter()
+        .append("path")
+        .attr("d", function (d) {
+            return d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d.total_cases)).curve(d3.curveCardinal)
+                (d.values)
+        })
+        .attr("fill", "none")
+        .attr("stroke", d => color(d.key))
+        .attr("stroke-width", 2)
 
 
-//append circle 
-d3.select("svg")
-    .selectAll("circle")
-    .append("g")
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("r", 6)
-    .attr("cx", d => xScale(d.date))
-    .attr("cy", d => yScale(d.total_cases))
-    .style("fill", d => color(d.location))
+    //append circle 
+    d3.select("svg")
+        .selectAll("circle")
+        .append("g")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("r", 6)
+        .attr("cx", d => xScale(d.date))
+        .attr("cy", d => yScale(d.total_cases))
+        .style("fill", d => color(d.location))
+});
 
-//append legends
-var legend = d3.select("svg")
-    .selectAll('g.legend')
-    .data(sumstat)
-    .enter()
-    .append("g")
-    .attr("class", "legend");
+function hover(svg, path) {
+  
+  if ("ontouchstart" in document) svg
+      .style("-webkit-tap-highlight-color", "transparent")
+      .on("touchmove", moved)
+      .on("touchstart", entered)
+      .on("touchend", left)
+  else svg
+      .on("mousemove", moved)
+      .on("mouseenter", entered)
+      .on("mouseleave", left);
 
-legend.append("circle")
-    .attr("cx", 1000)
-    .attr('cy', (d, i) => i * 30 + 350)
-    .attr("r", 6)
-    .style("fill", d => color(d.key))
+  const dot = svg.append("g")
+      .attr("display", "none");
 
-legend.append("text")
-    .attr("x", 1020)
-    .attr("y", (d, i) => i * 30 + 355)
-    .text(d => d.key)
+  dot.append("circle")
+      .attr("r", 2.5);
 
-//append title
-d3.select("svg")
-    .append("text")
-    .attr("x", 485)
-    .attr("y", 30)
-    .attr("text-anchor", "middle")
-    .text("Total Covid Cases, by location, in natural log")
-    .style("fill", "black")
-    .style("font-size", 28)
-    .style("font-family", "Arial Black")
+  dot.append("text")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+      .attr("text-anchor", "middle")
+      .attr("y", -8);
 
-//apend source
-d3.select("svg")
-    .append("text")
-    .attr("x", 70)
-    .attr("y", 700)
-    .text("Source: , July 2021")
-    .style("fill", "black")
-    .style("font-size", 14)
-    .style("font-family", "Arial Black")
-})
+  function moved(event) {
+    event.preventDefault();
+    const pointer = d3.pointer(event, this);
+    const xm = x.invert(pointer[0]);
+    const ym = y.invert(pointer[1]);
+    const i = d3.bisectCenter(data.date, xm);
+    const s = d3.least(data.total_cases, d => Math.abs(d.values[i] - ym));
+    path.attr("stroke", d => d === s ? null : "#ddd").filter(d => d === s).raise();
+    dot.attr("transform", `translate(${x(data.date[i])},${y(s.values[i])})`);
+    dot.select("text").text(s.name);
+  }
+
+  function entered() {
+    path.style("mix-blend-mode", null).attr("stroke", "#ddd");
+    dot.attr("display", null);
+  }
+
+  function left() {
+    path.style("mix-blend-mode", "multiply").attr("stroke", null);
+    dot.attr("display", "none");
+  }
+}
+
+
+var height = 600;
+var margin = ({top: 20, right: 20, bottom: 30, left: 30});
+
+x = d3.scaleUtc()
+    .domain(d3.extent(data.date))
+    .range([margin.left, width - margin.right])
+
+y = d3.scaleLinear()
+    .domain([0, d3.max(data.total_cases, d => d3.max(d.values))]).nice()
+    .range([height - margin.bottom, margin.top])
+
+xAxis = g => g
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+
+yAxis = g => g
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.select(".tick:last-of-type text").clone()
+        .attr("x", 3)
+        .attr("text-anchor", "start")
+        .attr("font-weight", "bold")
+        .text(d.y))
+
+line = d3.line()
+    .defined(d => !isNaN(d))
+    .x((d, i) => x(d.date[i]))
+    .y(d => y(d))
+
 
 </script>
+
