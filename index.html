@@ -35,16 +35,18 @@
   </body>
   
   <script>
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    const width = 1000 - margin.left - margin.right;
-    const height = 600 - margin.top - margin.bottom;
+    const margin = { top: 50, right: 20, bottom: 30, left: 30 };
+
+    //chart 1 - total covid cases worldwide
+    const width1 = 800 - margin.left - margin.right;
+    const height1 = 500 - margin.top - margin.bottom;
   
     // append the svg object to the body of the page
     const svg = d3
       .select("#covid")
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", width1 + margin.left + margin.right)
+      .attr("height", height1 + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
@@ -64,14 +66,14 @@
             return new Date(d.date);
           })
         )
-        .range([0, width]);
+        .range([0, width1]);
       svg
         .append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + height1 + ")")
         .call(d3.axisBottom(x).ticks(10))
         .append("text")
-        .attr("x", (width+margin.left)/2) //middle of the xAxis
+        .attr("x", (width1+margin.left)/2) //middle of the xAxis
         .attr("y", margin.bottom) //middle of the xAxis
         .attr("text-anchor", "end")
         .text("Year")
@@ -86,7 +88,7 @@
             return Number(parseFloat(d.total_cases).toFixed(20));
           }),
         ])
-        .range([height, 0]);
+        .range([height1, 0]);
       svg.append("g")
         .attr("class", "axis")
         .call(d3.axisLeft(y))
@@ -149,13 +151,13 @@
         .attr("class", "legend");
 
     legend.append("circle")
-        .attr("cx", width*0.8)
+        .attr("cx", width1*0.8)
         .attr('cy', (d, i) => i * margin.left + 350)
         .attr("r", 6)
         .style("fill", d => color(d.key))
 
     legend.append("text")
-        .attr("x", width*0.8+margin.left )
+        .attr("x", width1*0.8+margin.left )
         .attr("y", (d, i) => i * margin.left + 355)
         .text(d => d.key)
 
@@ -174,46 +176,46 @@
     d3.select("svg")
         .append("text")
         .attr("x", margin.left)
-        .attr("y", height)
+        .attr("y", height1)
         .text("Source: Data from Johns Hopkins University, July 2021")
         .style("fill", "black")
         .style("font-size", 14)
         .style("font-family", "Arial Black")
 
     //define path to hover
-    const path = svg.append("g")
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-        .selectAll("path")
-        .data(data)
-        .append("path")
-      .style("mix-blend-mode", "multiply")
-    //   .attr("d", d => line(d.values))
-      .attr("d", function (d) {
-          console.log(d);
-          return d3
-            .line()
-            .x(function (d) {
-              return x(new Date(d.date));
-            })
-            .y(function (d) {
-              return y(Number(parseFloat(d.total_cases).toFixed(20)));
-            })(d.values);
-        })
-        .call(hover, path);
+    // const path = svg.append("g")
+    //   .attr("fill", "none")
+    //   .attr("stroke", "steelblue")
+    //   .attr("stroke-width", 1.5)
+    //   .attr("stroke-linejoin", "round")
+    //   .attr("stroke-linecap", "round")
+    //     .selectAll("path")
+    //     .data(data)
+    //     .append("path")
+    //   .style("mix-blend-mode", "multiply")
+    // //   .attr("d", d => line(d.values))
+    //   .attr("d", function (d) {
+    //       console.log(d);
+    //       return d3
+    //         .line()
+    //         .x(function (d) {
+    //           return x(new Date(d.date));
+    //         })
+    //         .y(function (d) {
+    //           return y(Number(parseFloat(d.total_cases).toFixed(20)));
+    //         })(d.values);
+    //     })
+    //     .call(hover, path);
     
     function hover(svg, path) {
   
         if ("ontouchstart" in document) svg
             .style("-webkit-tap-highlight-color", "transparent")
-            // .on("touchmove", moved)
+            .on("touchmove", moved)
             .on("touchstart", entered)
             .on("touchend", left)
         else svg
-            // .on("mousemove", moved)
+            .on("mousemove", moved)
             .on("mouseenter", entered)
             .on("mouseleave", left);
 
@@ -259,8 +261,143 @@
 
     });
 
+    //chart 2 - people_fully_vaccinated_per_hundred
+    const width2 = 1200 - margin.left - margin.right - width1;
+    const height2 = 750 - margin.top - margin.bottom - height1;
 
+    d3.csv("clean_data_full_vaccination.csv", function (data) {
+      const sumstat = d3
+        .nest() // nest function allows to group the calculation per level of a factor
+        .key(function (d) {
+          return d.location;
+        })
+        .entries(data);
+        
+    // Add X axis
+      const x = d3
+        .scaleTime()
+        .domain(
+          d3.extent(data, function (d) {
+            return new Date(d.date);
+          })
+        )
+        .range([0, width2]);
+      svg
+        .append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + width1 + "," + (height2+height1) + ")")
+        .call(d3.axisBottom(x).ticks(10))
+        .append("text")
+        .attr("x", (width2+margin.left)/2) //middle of the xAxis
+        .attr("y", margin.bottom) //middle of the xAxis
+        .attr("text-anchor", "end")
+        .text("Year")
+        ;
+  
+      // Add Y axis
+      const y = d3
+        .scaleLinear()
+        .domain([
+          0,
+          d3.max(data, function (d) {
+            return Number(parseFloat(d.people_fully_vaccinated_per_hundred).toFixed(20));
+          }),
+        ])
+        .range([height2, 0]);
+      svg.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .attr("text-anchor", "end")
+        .text("Natural Log of Total Covid Cases")
+      
+      ;
+  
+      // color palette
+      var res = sumstat.map(function (d) {
+        return d.key;
+      }); // list of group names
+      var color = d3
+        .scaleOrdinal()
+        .domain(res)
+        .range([
+        //   "#e41a1c",
+          "#377eb8",
+        //   "#4daf4a",
+          "#984ea3",
+          "#ff7f00",
+          "#ffff33",
+          "#a65628",
+          "#f781bf",
+        ]);
+  
+      // Draw the line
+      svg
+        .selectAll(".line")
+        .data(sumstat)
+        .enter()
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", function (d) {
+          return color(d.key);
+        })
+        .attr("stroke-width", 1.5)
+        .attr("d", function (d) {
+          console.log(d);
+          return d3
+            .line()
+            .x(function (d) {
+              return x(new Date(d.date));
+            })
+            .y(function (d) {
+              return y(Number(parseFloat(d.people_fully_vaccinated_per_hundred).toFixed(20)));
+            })(d.values);
+        });
 
+    //append legends
+    var legend = d3.select("svg")
+        .selectAll('g.legend')
+        .data(sumstat)
+        .enter()
+        .append("g")
+        .attr("class", "legend");
+
+    legend.append("circle")
+        .attr("cx", width2*0.8)
+        .attr('cy', (d, i) => i * margin.left + 350)
+        .attr("r", 6)
+        .style("fill", d => color(d.key))
+
+    legend.append("text")
+        .attr("x", width2*0.8+margin.left )
+        .attr("y", (d, i) => i * margin.left + 355)
+        .text(d => d.key)
+
+    //append title
+    d3.select("svg")
+        .append("text")
+        .attr("x", 485)
+        .attr("y", 30)
+        .attr("text-anchor", "middle")
+        .text("COVID-19 Total Cases Worldwide")
+        .style("fill", "black")
+        .style("font-size", 28)
+        .style("font-family", "Arial Black")
+
+    //apend source
+    d3.select("svg")
+        .append("text")
+        .attr("x", margin.left)
+        .attr("y", height2)
+        .text("Source: Data from Johns Hopkins University, July 2021")
+        .style("fill", "black")
+        .style("font-size", 14)
+        .style("font-family", "Arial Black")
+
+    });
   
   </script>
   
