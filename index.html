@@ -31,19 +31,20 @@
 </head>
   
   <body>
-    <div id="covid"></div>
+    <div id="covid_cases"></div>
+    <div id="vaccination"></div>
   </body>
   
   <script>
     const margin = { top: 50, right: 20, bottom: 30, left: 30 };
 
     //chart 1 - total covid cases worldwide
-    const width1 = 800 - margin.left - margin.right;
+    const width1 = 700 - margin.left - margin.right;
     const height1 = 500 - margin.top - margin.bottom;
   
     // append the svg object to the body of the page
     const svg = d3
-      .select("#covid")
+      .select("#covid_cases")
       .append("svg")
       .attr("width", width1 + margin.left + margin.right)
       .attr("height", height1 + margin.top + margin.bottom)
@@ -152,20 +153,20 @@
 
     legend.append("circle")
         .attr("cx", width1*0.8)
-        .attr('cy', (d, i) => i * margin.left + 350)
+        .attr('cy', (d, i) => i * margin.left + height1/2)
         .attr("r", 6)
         .style("fill", d => color(d.key))
 
     legend.append("text")
         .attr("x", width1*0.8+margin.left )
-        .attr("y", (d, i) => i * margin.left + 355)
+        .attr("y", (d, i) => i * margin.left + height1/2 + 5)
         .text(d => d.key)
 
     //append title
     d3.select("svg")
         .append("text")
-        .attr("x", 485)
-        .attr("y", 30)
+        .attr("x", width1/2)
+        .attr("y", margin.top)
         .attr("text-anchor", "middle")
         .text("COVID-19 Total Cases Worldwide")
         .style("fill", "black")
@@ -265,6 +266,14 @@
     const width2 = 1200 - margin.left - margin.right - width1;
     const height2 = 750 - margin.top - margin.bottom - height1;
 
+    const chart = d3
+      .select("#vaccination")
+      .append("svg")
+      .attr("width", width2 + margin.left + margin.right)
+      .attr("height", height2 + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
     d3.csv("clean_data_full_vaccination.csv", function (data) {
       const sumstat = d3
         .nest() // nest function allows to group the calculation per level of a factor
@@ -282,10 +291,10 @@
           })
         )
         .range([0, width2]);
-      svg
+        chart
         .append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(" + width1 + "," + (height2+height1) + ")")
+        .attr("transform", "translate(0," + height2 + ")")
         .call(d3.axisBottom(x).ticks(10))
         .append("text")
         .attr("x", (width2+margin.left)/2) //middle of the xAxis
@@ -304,7 +313,7 @@
           }),
         ])
         .range([height2, 0]);
-      svg.append("g")
+        chart.append("g")
         .attr("class", "axis")
         .call(d3.axisLeft(y))
         .append("text")
@@ -335,7 +344,7 @@
         ]);
   
       // Draw the line
-      svg
+      chart
         .selectAll(".line")
         .data(sumstat)
         .enter()
@@ -357,45 +366,18 @@
             })(d.values);
         });
 
-    //append legends
-    var legend = d3.select("svg")
-        .selectAll('g.legend')
-        .data(sumstat)
-        .enter()
-        .append("g")
-        .attr("class", "legend");
-
-    legend.append("circle")
-        .attr("cx", width2*0.8)
-        .attr('cy', (d, i) => i * margin.left + 350)
-        .attr("r", 6)
-        .style("fill", d => color(d.key))
-
-    legend.append("text")
-        .attr("x", width2*0.8+margin.left )
-        .attr("y", (d, i) => i * margin.left + 355)
-        .text(d => d.key)
-
     //append title
     d3.select("svg")
         .append("text")
-        .attr("x", 485)
-        .attr("y", 30)
+        .attr("x", width2/2)
+        .attr("y", height1 + margin.bottom)
         .attr("text-anchor", "middle")
-        .text("COVID-19 Total Cases Worldwide")
+        .text("COVID-19 Vaccinations Worldwide")
         .style("fill", "black")
-        .style("font-size", 28)
+        .style("font-size", 20)
         .style("font-family", "Arial Black")
 
-    //apend source
-    d3.select("svg")
-        .append("text")
-        .attr("x", margin.left)
-        .attr("y", height2)
-        .text("Source: Data from Johns Hopkins University, July 2021")
-        .style("fill", "black")
-        .style("font-size", 14)
-        .style("font-family", "Arial Black")
+
 
     });
   
