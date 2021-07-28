@@ -202,7 +202,8 @@
             .y(function (d) {
               return y(Number(parseFloat(d.total_cases).toFixed(20)));
             })(d.values);
-        });
+        })
+        .call(hover, path);
     
     function hover(svg, path) {
   
@@ -254,7 +255,7 @@
         }
         }
       
-        svg.call(hover, path);
+        // svg.call(hover, path);
 
     });
 
