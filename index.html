@@ -1,385 +1,354 @@
 <head>
-    <!-- Load d3 source scripts -->
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <!-- <script src="https://d3js.org/d3.v6.min.js" type="text/JavaScript"></script> -->
-    <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+  <!-- Load d3 source scripts -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- <script src="https://d3js.org/d3.v6.min.js" type="text/JavaScript"></script> -->
+  <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
 
   <!-- style section-->
   <style>
-    .axis path{
-        stroke:black;
-        stroke-width:2px ;
-    }   
-
-    .axis line{
-        stroke: black;
-        stroke-width: 1.5px;
-    } 
- 
-    .axis text{
-        fill: black;
-        font-weight: bold;
-        font-size: 14px;
-        font-family:"Arial Black", Gadget, sans-serif;
-    } 
-
-    .legend text{
-        fill:  black;
-        font-family:"Arial Black", Gadget, sans-serif;
+    .axis path {
+      stroke: black;
+      stroke-width: 2px;
     }
- </style>
-</head>
-  
-  <body>
-    <div id="covid_cases"></div>
-    <div id="vaccination"></div>
-  </body>
-  
-  <script>
-    const margin = { top: 50, right: 20, bottom: 30, left: 30 };
 
-    //chart 1 - total covid cases worldwide
-    const width1 = 700 - margin.left - margin.right;
-    const height1 = 500 - margin.top - margin.bottom;
-  
-    // append the svg object to the body of the page
-    const svg = d3
-      .select("#covid_cases")
-      .append("svg")
-      .attr("width", width1 + margin.left + margin.right)
-      .attr("height", height1 + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  
-    d3.csv("clean_data_total_cases.csv", function (data) {
-      const sumstat = d3
-        .nest() // nest function allows to group the calculation per level of a factor
-        .key(function (d) {
-          return d.location;
-        })
-        .entries(data);
-        
+    .axis line {
+      stroke: black;
+      stroke-width: 1.5px;
+    }
+
+    .axis text {
+      fill: black;
+      font-weight: bold;
+      font-size: 14px;
+      font-family: "Arial Black", Gadget, sans-serif;
+    }
+
+    .legend text {
+      fill: black;
+      font-family: "Arial Black", Gadget, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="covid_cases"></div>
+  <div id="vaccination"></div>
+  <img id="image"></img>
+</body>
+
+<script>
+  const margin = { top: 50, right: 20, bottom: 30, left: 30 };
+
+  const width1 = 700 - margin.left - margin.right;
+  const height1 = 500 - margin.top - margin.bottom;
+
+  //chart 1 - total covid cases worldwide
+  // append the svg object to the body of the page
+  const svg = d3
+    .select("#covid_cases")
+    .append("svg")
+    .attr("width", width1 + margin.left + margin.right)
+    .attr("height", height1 + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("clean_data_total_cases.csv", function (data) {
+    const sumstat = d3
+      .nest() // nest function allows to group the calculation per level of a factor
+      .key(function (d) {
+        return d.location;
+      })
+      .entries(data);
+
     // Add X axis
-      const x = d3
-        .scaleTime()
-        .domain(
-          d3.extent(data, function (d) {
-            return new Date(d.date);
-          })
-        )
-        .range([0, width1]);
-      svg
-        .append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + height1 + ")")
-        .call(d3.axisBottom(x).ticks(10))
-        .append("text")
-        .attr("x", (width1+margin.left)/2) //middle of the xAxis
-        .attr("y", margin.bottom) //middle of the xAxis
-        .attr("text-anchor", "end")
-        .text("Year")
-        ;
-  
-      // Add Y axis
-      const y = d3
-        .scaleLinear()
-        .domain([
-          0,
-          d3.max(data, function (d) {
-            return Number(parseFloat(d.total_cases).toFixed(20));
-          }),
-        ])
-        .range([height1, 0]);
-      svg.append("g")
-        .attr("class", "axis")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .attr("text-anchor", "end")
-        .text("Natural Log of Total Covid Cases")
-      
-      ;
-  
-      // color palette
-      var res = sumstat.map(function (d) {
-        return d.key;
-      }); // list of group names
-      var color = d3
-        .scaleOrdinal()
-        .domain(res)
-        .range([
-          "#e41a1c",
-          "#377eb8",
-          "#4daf4a",
-          "#984ea3",
-          "#ff7f00",
-          "#ffff33",
-          "#a65628",
-          "#f781bf",
-        ]);
-  
-      // Draw the line
-      svg
-        .selectAll(".line")
-        .data(sumstat)
-        .enter()
-        .append("path")
-        .attr("fill", "none")
-        .attr("stroke", function (d) {
-          return color(d.key);
+    const x = d3
+      .scaleTime()
+      .domain(
+        d3.extent(data, function (d) {
+          return new Date(d.date);
         })
-        .attr("stroke-width", 1.5)
-        .attr("d", function (d) {
-          console.log(d);
-          return d3
-            .line()
-            .x(function (d) {
-              return x(new Date(d.date));
+      )
+      .range([0, width1]);
+    svg
+      .append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0," + height1 + ")")
+      .call(d3.axisBottom(x).ticks(10))
+      .append("text")
+      .attr("x", (width1 + margin.left) / 2) //middle of the xAxis
+      .attr("y", margin.bottom) //middle of the xAxis
+      .attr("text-anchor", "end")
+      .text("Year");
+
+    // Add Y axis
+    const y = d3
+      .scaleLinear()
+      .domain([
+        0,
+        d3.max(data, function (d) {
+          return Number(parseFloat(d.total_cases).toFixed(20));
+        }),
+      ])
+      .range([height1, 0]);
+    svg
+      .append("g")
+      .attr("class", "axis")
+      .call(d3.axisLeft(y))
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .attr("text-anchor", "end")
+      .text("Natural Log of Total Covid Cases");
+
+    // color palette
+    var res = sumstat.map(function (d) {
+      return d.key;
+    }); // list of group names
+    var color = d3
+      .scaleOrdinal()
+      .domain(res)
+      .range([
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#984ea3",
+        "#ff7f00",
+        "#ffff33",
+        "#a65628",
+        "#f781bf",
+      ]);
+
+    // Draw the line
+    svg
+      .selectAll(".line")
+      .data(sumstat)
+      .enter()
+      .append("path")
+      .attr("fill", "none")
+      .attr("stroke", function (d) {
+        return color(d.key);
+      })
+      .attr("stroke-width", 1.5)
+      .attr("d", function (d) {
+        return d3
+          .line()
+          .x(function (d) {
+            return x(new Date(d.date));
+          })
+          .y(function (d) {
+            return y(Number(parseFloat(d.total_cases).toFixed(20)));
+          })(d.values);
+      })
+      .on("mouseover", (d2) => {
+        console.log(d2);
+        // --- HOVER EFFECT HERE ---
+
+        // Images
+        if (d2.key === "Singapore") {
+            // select img tag by id which is image
+            // change img src to have Singapore image
+            d3.selectAll("#image *").remove(); 
+        
+            // const width3 = 1200 - margin.left - margin.right - width1;
+            // const height3 = 750 - margin.top - margin.bottom - height1;
+
+            d3
+            .select("#image")
+            .append("img")
+            .attr("width", 200)
+            .attr("height", 150)
+            .attr('href','Images/pic_Singapore_covid.jpeg')
+            // .attr("xlink:href", function() {return 'Images/pic_Singapore_covid.jpeg'})
+            .attr(
+                "transform",
+                "translate(" + margin.left + "," + margin.top + ")")
+
+        } else if (d2.key === "China") {
+
+        } else if (d2.key === "Japan") {
+
+        } else if (d2.key === "Australia") {
+
+        } else if (d2.key === "Italy") {
+
+        } else if (d2.key === "Canada") {
+
+        } else if (d2.key === "United States") {
+
+        } else if (d2.key === "United Kingdom") {
+
+        }
+
+        // chart 2 - people_fully_vaccinated_per_hundred
+        d3.selectAll("#vaccination *").remove(); 
+        
+        const width2 = 1200 - margin.left - margin.right - width1;
+        const height2 = 750 - margin.top - margin.bottom - height1;
+
+        const chart = d3
+          .select("#vaccination")
+          .append("svg")
+          .attr("width", width2 + margin.left + margin.right)
+          .attr("height", height2 + margin.top + margin.bottom)
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
+
+        d3.csv("clean_data_full_vaccination.csv", function (data) {
+          const sumstat = d3
+            .nest() // nest function allows to group the calculation per level of a factor
+            .key(function (d) {
+              return d.location;
             })
-            .y(function (d) {
-              return y(Number(parseFloat(d.total_cases).toFixed(20)));
-            })(d.values);
+            .entries(data);
+
+          // Add X axis
+          const x = d3
+            .scaleTime()
+            .domain(
+              d3.extent(data, function (d) {
+                return new Date(d.date);
+              })
+            )
+            .range([0, width2]);
+          chart
+            .append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height2 + ")")
+            .call(d3.axisBottom(x).ticks(10))
+            .append("text")
+            .attr("x", (width2 + margin.left) / 2) //middle of the xAxis
+            .attr("y", margin.bottom) //middle of the xAxis
+            .attr("text-anchor", "end")
+            .text("Year");
+
+          // Add Y axis
+          const y = d3
+            .scaleLinear()
+            .domain([
+              0,
+              d3.max(data, function (d) {
+                return Number(
+                  parseFloat(d.people_fully_vaccinated_per_hundred).toFixed(20)
+                );
+              }),
+            ])
+            .range([height2, 0]);
+          chart
+            .append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .attr("text-anchor", "end")
+            .text("Natural Log of Total Covid Cases");
+
+          // color palette
+          var res = sumstat.map(function (d) {
+            return d.key;
+          }); // list of group names
+          var color = d3.scaleOrdinal().domain(res).range([
+            //   "#e41a1c",
+            "#377eb8",
+            //   "#4daf4a",
+            "#984ea3",
+            "#ff7f00",
+            "#ffff33",
+            "#a65628",
+            "#f781bf",
+          ]);
+
+          // Draw the line
+          chart
+            .selectAll(".line")
+            .data(sumstat)
+            .enter()
+            .append("path")
+            .attr("fill", "none")
+            .attr("stroke", function (d) {
+              return color(d.key);
+            })
+            .attr("stroke-width", 1.5)
+            .attr("d", function (d) {
+
+              // --- ONLY RENDER SECOND GRAPH WHERE KEY MATCHES ---
+              if (d.key === d2.key) {
+                return d3
+                  .line()
+                  .x(function (d) {
+                    return x(new Date(d.date));
+                  })
+                  .y(function (d) {
+                    return y(
+                      Number(
+                        parseFloat(
+                          d.people_fully_vaccinated_per_hundred
+                        ).toFixed(20)
+                      )
+                    );
+                  })(d.values);
+              }
+            });
+
+          //append title
+          d3.select("svg")
+            .append("text")
+            .attr("x", width2 / 2)
+            .attr("y", height1 + margin.bottom)
+            .attr("text-anchor", "middle")
+            .text("COVID-19 Vaccinations Worldwide")
+            .style("fill", "black")
+            .style("font-size", 20)
+            .style("font-family", "Arial Black");
         });
+      });
 
     //append legends
-    var legend = d3.select("svg")
-        .selectAll('g.legend')
-        .data(sumstat)
-        .enter()
-        .append("g")
-        .attr("class", "legend");
+    var legend = d3
+      .select("svg")
+      .selectAll("g.legend")
+      .data(sumstat)
+      .enter()
+      .append("g")
+      .attr("class", "legend");
 
-    legend.append("circle")
-        .attr("cx", width1*0.8)
-        .attr('cy', (d, i) => i * margin.left + height1/2)
-        .attr("r", 6)
-        .style("fill", d => color(d.key))
+    legend
+      .append("circle")
+      .attr("cx", width1 * 0.8)
+      .attr("cy", (d, i) => i * margin.left + height1 / 2)
+      .attr("r", 6)
+      .style("fill", (d) => color(d.key));
 
-    legend.append("text")
-        .attr("x", width1*0.8+margin.left )
-        .attr("y", (d, i) => i * margin.left + height1/2 + 5)
-        .text(d => d.key)
+    legend
+      .append("text")
+      .attr("x", width1 * 0.8 + margin.left)
+      .attr("y", (d, i) => i * margin.left + height1 / 2 + 5)
+      .text((d) => d.key);
 
     //append title
     d3.select("svg")
-        .append("text")
-        .attr("x", width1/2)
-        .attr("y", margin.top)
-        .attr("text-anchor", "middle")
-        .text("COVID-19 Total Cases Worldwide")
-        .style("fill", "black")
-        .style("font-size", 28)
-        .style("font-family", "Arial Black")
+      .append("text")
+      .attr("x", width1 / 2)
+      .attr("y", margin.top)
+      .attr("text-anchor", "middle")
+      .text("COVID-19 Total Cases Worldwide")
+      .style("fill", "black")
+      .style("font-size", 28)
+      .style("font-family", "Arial Black");
 
     //apend source
     d3.select("svg")
-        .append("text")
-        .attr("x", margin.left)
-        .attr("y", height1)
-        .text("Source: Data from Johns Hopkins University, July 2021")
-        .style("fill", "black")
-        .style("font-size", 14)
-        .style("font-family", "Arial Black")
-
-    //define path to hover
-    // const path = svg.append("g")
-    //   .attr("fill", "none")
-    //   .attr("stroke", "steelblue")
-    //   .attr("stroke-width", 1.5)
-    //   .attr("stroke-linejoin", "round")
-    //   .attr("stroke-linecap", "round")
-    //     .selectAll("path")
-    //     .data(data)
-    //     .append("path")
-    //   .style("mix-blend-mode", "multiply")
-    // //   .attr("d", d => line(d.values))
-    //   .attr("d", function (d) {
-    //       console.log(d);
-    //       return d3
-    //         .line()
-    //         .x(function (d) {
-    //           return x(new Date(d.date));
-    //         })
-    //         .y(function (d) {
-    //           return y(Number(parseFloat(d.total_cases).toFixed(20)));
-    //         })(d.values);
-    //     })
-    //     .call(hover, path);
-    
-    function hover(svg, path) {
-  
-        if ("ontouchstart" in document) svg
-            .style("-webkit-tap-highlight-color", "transparent")
-            .on("touchmove", moved)
-            .on("touchstart", entered)
-            .on("touchend", left)
-        else svg
-            .on("mousemove", moved)
-            .on("mouseenter", entered)
-            .on("mouseleave", left);
-
-        const dot = svg.append("g")
-            .attr("display", "none");
-
-        dot.append("circle")
-            .attr("r", 2.5);
-
-        dot.append("text")
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 10)
-            .attr("text-anchor", "middle")
-            .attr("y", -8);
-
-        function moved(event) {
-            if(event) event.preventDefault();
-            // const pointer = d3.pointer(event, this);
-            const pointer = d3.mouse(this);
-            const xm = x.invert(pointer[0]);
-            const ym = y.invert(pointer[1]);
-            const i = bisectDate(data, xm, 1);
-            // const i = d3.bisectCenter(data.date, xm);
-            const s = d3.least(data.total_cases, d => Math.abs(d.values[i] - ym));
-            path.attr("stroke", d => d === s ? null : "#ddd").filter(d => d === s).raise();
-            dot.attr("transform", `translate(${x(data.date[i])},${y(s.values[i])})`);
-            dot.select("text").text(s.location);
-        }
-        
-
-        function entered() {
-            path.style("mix-blend-mode", null).attr("stroke", "#ddd");
-            dot.attr("display", null);
-        }
-
-        function left() {
-            path.style("mix-blend-mode", "multiply").attr("stroke", null);
-            dot.attr("display", "none");
-        }
-        }
-      
-        // svg.call(hover, path);
-
-    });
-
-    //chart 2 - people_fully_vaccinated_per_hundred
-    const width2 = 1200 - margin.left - margin.right - width1;
-    const height2 = 750 - margin.top - margin.bottom - height1;
-
-    const chart = d3
-      .select("#vaccination")
-      .append("svg")
-      .attr("width", width2 + margin.left + margin.right)
-      .attr("height", height2 + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    d3.csv("clean_data_full_vaccination.csv", function (data) {
-      const sumstat = d3
-        .nest() // nest function allows to group the calculation per level of a factor
-        .key(function (d) {
-          return d.location;
-        })
-        .entries(data);
-        
-    // Add X axis
-      const x = d3
-        .scaleTime()
-        .domain(
-          d3.extent(data, function (d) {
-            return new Date(d.date);
-          })
-        )
-        .range([0, width2]);
-        chart
-        .append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + height2 + ")")
-        .call(d3.axisBottom(x).ticks(10))
-        .append("text")
-        .attr("x", (width2+margin.left)/2) //middle of the xAxis
-        .attr("y", margin.bottom) //middle of the xAxis
-        .attr("text-anchor", "end")
-        .text("Year")
-        ;
-  
-      // Add Y axis
-      const y = d3
-        .scaleLinear()
-        .domain([
-          0,
-          d3.max(data, function (d) {
-            return Number(parseFloat(d.people_fully_vaccinated_per_hundred).toFixed(20));
-          }),
-        ])
-        .range([height2, 0]);
-        chart.append("g")
-        .attr("class", "axis")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .attr("text-anchor", "end")
-        .text("Natural Log of Total Covid Cases")
-      
-      ;
-  
-      // color palette
-      var res = sumstat.map(function (d) {
-        return d.key;
-      }); // list of group names
-      var color = d3
-        .scaleOrdinal()
-        .domain(res)
-        .range([
-        //   "#e41a1c",
-          "#377eb8",
-        //   "#4daf4a",
-          "#984ea3",
-          "#ff7f00",
-          "#ffff33",
-          "#a65628",
-          "#f781bf",
-        ]);
-  
-      // Draw the line
-      chart
-        .selectAll(".line")
-        .data(sumstat)
-        .enter()
-        .append("path")
-        .attr("fill", "none")
-        .attr("stroke", function (d) {
-          return color(d.key);
-        })
-        .attr("stroke-width", 1.5)
-        .attr("d", function (d) {
-          console.log(d);
-          return d3
-            .line()
-            .x(function (d) {
-              return x(new Date(d.date));
-            })
-            .y(function (d) {
-              return y(Number(parseFloat(d.people_fully_vaccinated_per_hundred).toFixed(20)));
-            })(d.values);
-        });
-
-    //append title
-    d3.select("svg")
-        .append("text")
-        .attr("x", width2/2)
-        .attr("y", height1 + margin.bottom)
-        .attr("text-anchor", "middle")
-        .text("COVID-19 Vaccinations Worldwide")
-        .style("fill", "black")
-        .style("font-size", 20)
-        .style("font-family", "Arial Black")
-
-
-
-    });
-  
-  </script>
-  
+      .append("text")
+      .attr("x", margin.left)
+      .attr("y", height1)
+      .text("Source: Data from Johns Hopkins University, July 2021")
+      .style("fill", "black")
+      .style("font-size", 14)
+      .style("font-family", "Arial Black");
+  });
+</script>
