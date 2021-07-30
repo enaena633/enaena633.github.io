@@ -42,8 +42,11 @@
       align-self: center;
     }
 
-    #image {
+    #img-container {
       align-self: flex-start;
+    }
+
+    #image {
       width: 500px;
     }
   </style>
@@ -53,7 +56,10 @@
   <div class="container">
     <div id="vaccination"></div>
     <div id="covid_cases"></div>
-    <img id="image"></img>
+    <div id="img-container">
+      <img id="image"></img>
+      <small id="annotation"></small>
+    </div>
   </div>
 </body>
 
@@ -168,20 +174,28 @@
         // Images
         if (d2.key === "Singapore") {
           document.getElementById("image").src = "Images/pic_Singapore_covid.jpeg";
+          document.getElementById("annotation").textContent = "Timely preparation, aggressive testing, tracing of carriers, and a bit of luck has helped limit the impact of COVID-19 in Singapore. The city-state’s comparatively small population of 5.7 million people and experience of SARS in 2003 gave it the upper hand against the encroaching virus.";
         } else if (d2.key === "China") {
           document.getElementById("image").src = "Images/pic_China_covid.jpeg";
+          document.getElementById("annotation").textContent = "The early responses and measures adopted by China, such as early reporting and situation monitoring, large-scale surveillance, and preparation of medical facilities and supplies, were all successful in reducing the epidemic in China generally and in the epicenter Wuhan specifically.";
         } else if (d2.key === "Japan") {
           document.getElementById("image").src = "Images/pic_Japan_covid.jpeg";
+          document.getElementById("annotation").textContent = "In the early phase of the COVID-19 pandemic, Japan managed unprecedented quarantines and realized the difficulty of controlling COVID-19, finally recording a relatively high number of deaths per million in the Western Pacific region. The obscure evolution of the testing strategy, the usefulness of retrospective contact tracing, the rapid scientific risk assessment, a sluggish expansion of health system capacity and response in border control, and misunderstanding between risk communication and crisis communication all resulted in a higher case number in the country. ";
         } else if (d2.key === "Australia") {
           document.getElementById("image").src = "Images/pic_Australia_covid.jpeg";
+          document.getElementById("annotation").textContent = "Australia’s success in containing the pandemic can be attributed in part to structural advantages that are not necessarily replicable, including the country’s position as an island nation, which makes it relatively easy to close borders. But the country’s response has also been characterized by effective actions, policies, and leadership practices—implemented through strong collaboration between the public and private sectors—that are transferable and repeatable elsewhere.";
         } else if (d2.key === "Italy") {
           document.getElementById("image").src = "Images/pic_Italy_covid.jpeg";
+          document.getElementById("annotation").textContent = "Italy’s response is characterized by some rapid interventions to counter the health crisis, but few plans for prevention and a lack of community involvement. This has led to some delays and implied an overwhelming effort to counteract.";
         } else if (d2.key === "Canada") {
           document.getElementById("image").src = "Images/pic_Canada_covid.jpeg";
+          document.getElementById("annotation").textContent = "The goals of Canada’s COVID-19 pandemic response and recovery have been identified as minimizing all serious illness and death, while limiting societal disruption, including reducing the burden on health care resources. The relevant response includes conventional public health activities – such as surveillance and epidemiology, guidance development, testing, and providing emergency supplies to the provinces and territories (PTs) – as well as unprecedented border closures, stay-at-home and quarantine initiatives, and closures of schools, private businesses, and organizations that were deemed non-essential. These actions have affected the economic and social well-being of the country. Economic and social supports have been provided to eligible citizens, landed immigrants and permanent residents, and businesses.";
         } else if (d2.key === "United States") {
           document.getElementById("image").src = "Images/pic_US_covid.jpeg";
+          document.getElementById("annotation").textContent = "President Donald Trump’s nonchalance in the face of COVID-19 and refusal to act fast led the country down a very slippery slope. The lack of official federal guidance on COVID-19 health measures earlier on in the pandemic had a long-lasting negative effect on the country's overall containment of the covid situation.";
         } else if (d2.key === "United Kingdom") {
           document.getElementById("image").src = "Images/pic_UK_covid.jpeg";
+          document.getElementById("annotation").textContent = "In Britain, the coronavirus emerged amid a moment of confused relationships between government and scientists. The UK government’s response to the covid-19 pandemic was “hampered by overcentralized, poorly coordinated, and poorly communicated” policies and the sidelining of local providers. The catastrophic U.S. and U.K. responses to COVID-19 show that when we give out future grades to countries on how well prepared they are to handle the next pandemic, we need to account for a country’s political decision-making as one of the most important determining factors.";
         }
 
         // chart 2 - people_fully_vaccinated_per_hundred
