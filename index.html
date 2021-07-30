@@ -27,13 +27,34 @@
       fill: black;
       font-family: "Arial Black", Gadget, sans-serif;
     }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #vaccination {
+      align-self: flex-end;
+    }
+
+    #covid_cases {
+      align-self: center;
+    }
+
+    #image {
+      align-self: flex-start;
+      width: 500px;
+    }
   </style>
 </head>
 
 <body>
-  <div id="covid_cases"></div>
-  <div id="vaccination"></div>
-  <img id="image"></img>
+  <div class="container">
+    <div id="vaccination"></div>
+    <div id="covid_cases"></div>
+    <img id="image"></img>
+  </div>
 </body>
 
 <script>
@@ -146,38 +167,21 @@
 
         // Images
         if (d2.key === "Singapore") {
-            // select img tag by id which is image
-            // change img src to have Singapore image
-            d3.selectAll("#image *").remove(); 
-        
-            // const width3 = 1200 - margin.left - margin.right - width1;
-            // const height3 = 750 - margin.top - margin.bottom - height1;
-
-            d3
-            .select("#image")
-            .append("img")
-            .attr("width", 200)
-            .attr("height", 150)
-            .attr('href','Images/pic_Singapore_covid.jpeg')
-            // .attr("xlink:href", function() {return 'Images/pic_Singapore_covid.jpeg'})
-            .attr(
-                "transform",
-                "translate(" + margin.left + "," + margin.top + ")")
-
+          document.getElementById("image").src = "Images/pic_Singapore_covid.jpeg";
         } else if (d2.key === "China") {
-
+          document.getElementById("image").src = "Images/pic_China_covid.jpeg";
         } else if (d2.key === "Japan") {
-
+          document.getElementById("image").src = "Images/pic_Japan_covid.jpeg";
         } else if (d2.key === "Australia") {
-
+          document.getElementById("image").src = "Images/pic_Australia_covid.jpeg";
         } else if (d2.key === "Italy") {
-
+          document.getElementById("image").src = "Images/pic_Italy_covid.jpeg";
         } else if (d2.key === "Canada") {
-
+          document.getElementById("image").src = "Images/pic_Canada_covid.jpeg";
         } else if (d2.key === "United States") {
-
+          document.getElementById("image").src = "Images/pic_US_covid.jpeg";
         } else if (d2.key === "United Kingdom") {
-
+          document.getElementById("image").src = "Images/pic_UK_covid.jpeg";
         }
 
         // chart 2 - people_fully_vaccinated_per_hundred
