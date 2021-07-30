@@ -264,16 +264,16 @@
             .attr("y", 6)
             .attr("dy", ".71em")
             .attr("text-anchor", "end")
-            .text("Natural Log of Total Covid Cases");
+            .text("Fully Vaccinated Per 100 People");
 
           // color palette
           var res = sumstat.map(function (d) {
             return d.key;
           }); // list of group names
           var color = d3.scaleOrdinal().domain(res).range([
-            //   "#e41a1c",
+            "#e41a1c",
             "#377eb8",
-            //   "#4daf4a",
+            "#4daf4a",
             "#984ea3",
             "#ff7f00",
             "#ffff33",
@@ -314,12 +314,19 @@
             });
 
           //append title
-          d3.select("svg")
+          chart
+            .selectAll("path")
+            .data(sumstat)
+            .enter()
+            .append("g")
             .append("text")
             .attr("x", width2 / 2)
-            .attr("y", height1 + margin.bottom)
+            .attr("y", 20)
             .attr("text-anchor", "middle")
-            .text("COVID-19 Vaccinations Worldwide")
+            .text(function(d) {
+                console.log(d);
+                return d.location + "COVID-19 Vaccinations Per Hundred People";
+                })
             .style("fill", "black")
             .style("font-size", 20)
             .style("font-family", "Arial Black");
