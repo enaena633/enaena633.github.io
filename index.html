@@ -32,39 +32,46 @@
       display: flex;
       height: 100vh;
       width: 100vw;
+      align-items: center;
     }
 
-    #vaccination {
-      align-self: flex-end;
-    }
-
-    #covid_cases {
-      align-self: center;
+    #right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     #img-container {
-      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 400px;
     }
 
     #image {
-      width: 500px;
+      width: 400px;
     }
+
   </style>
 </head>
 
 <body>
   <div class="container">
-    <div id="vaccination"></div>
     <div id="covid_cases"></div>
-    <div id="img-container">
-      <img id="image"></img>
-      <small id="annotation"></small>
+    <div id="right">
+      <div id="img-container">
+        <img id="image"></img>
+        <small id="annotation"></small>
+      </div>
+      <div id="vaccination"></div>
     </div>
   </div>
 </body>
 
 <script>
-  const margin = { top: 50, right: 20, bottom: 30, left: 30 };
+  const margin = { top: 50, right: 20, bottom: 50, left: 120 };
 
   const width1 = 700 - margin.left - margin.right;
   const height1 = 500 - margin.top - margin.bottom;
@@ -75,7 +82,7 @@
     .select("#covid_cases")
     .append("svg")
     .attr("width", width1 + margin.left + margin.right)
-    .attr("height", height1 + margin.top + margin.bottom)
+    .attr("height", height1 + margin.top + margin.bottom + 50)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -100,9 +107,9 @@
       .append("g")
       .attr("class", "axis")
       .attr("transform", "translate(0," + height1 + ")")
-      .call(d3.axisBottom(x).ticks(10))
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")))
       .append("text")
-      .attr("x", (width1 + margin.left) / 2) //middle of the xAxis
+      .attr("x", width1 / 2) //middle of the xAxis
       .attr("y", margin.bottom) //middle of the xAxis
       .attr("text-anchor", "end")
       .text("Year");
@@ -123,8 +130,8 @@
       .call(d3.axisLeft(y))
       .append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
+      .attr("x", -100) //middle of the xAxis
+      .attr("y", -45) //middle of the xAxis
       .attr("text-anchor", "end")
       .text("Natural Log of Total Covid Cases");
 
@@ -236,9 +243,9 @@
             .append("g")
             .attr("class", "axis")
             .attr("transform", "translate(0," + height2 + ")")
-            .call(d3.axisBottom(x).ticks(10))
+            .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%b %Y")))
             .append("text")
-            .attr("x", (width2 + margin.left) / 2) //middle of the xAxis
+            .attr("x", width2 / 2) //middle of the xAxis
             .attr("y", margin.bottom) //middle of the xAxis
             .attr("text-anchor", "end")
             .text("Year");
@@ -261,9 +268,9 @@
             .call(d3.axisLeft(y))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .attr("text-anchor", "end")
+            .attr("x", -120) //middle of the xAxis
+            .attr("y", -45) //middle of the xAxis
+            .attr("text-anchor", "middle")
             .text("Fully Vaccinated Per 100 People");
 
           // color palette
@@ -315,18 +322,12 @@
 
           //append title
           chart
-            .selectAll("path")
-            .data(sumstat)
-            .enter()
             .append("g")
             .append("text")
             .attr("x", width2 / 2)
-            .attr("y", 20)
+            .attr("y", 6)
             .attr("text-anchor", "middle")
-            .text(function(d) {
-                console.log(d);
-                return d.location + "COVID-19 Vaccinations Per Hundred People";
-                })
+            .text(`${d2.key} Vaccination per 100 People`)
             .style("fill", "black")
             .style("font-size", 20)
             .style("font-family", "Arial Black");
@@ -344,22 +345,22 @@
 
     legend
       .append("circle")
-      .attr("cx", width1 * 0.8)
-      .attr("cy", (d, i) => i * margin.left + height1 / 2)
+      .attr("cx", (width1 * 0.8) + 60)
+      .attr("cy", (d, i) => (i * 22 + height1 / 2) + 60)
       .attr("r", 6)
       .style("fill", (d) => color(d.key));
 
     legend
       .append("text")
-      .attr("x", width1 * 0.8 + margin.left)
-      .attr("y", (d, i) => i * margin.left + height1 / 2 + 5)
+      .attr("x", (width1 * 0.8 + 15) + 60)
+      .attr("y", (d, i) => (i * 22 + height1 / 2 + 5) + 60)
       .text((d) => d.key);
 
     //append title
     d3.select("svg")
       .append("text")
-      .attr("x", width1 / 2)
-      .attr("y", margin.top)
+      .attr("x", (width1 / 2) + margin.left)
+      .attr("y", margin.top/1.5)
       .attr("text-anchor", "middle")
       .text("COVID-19 Total Cases Worldwide")
       .style("fill", "black")
@@ -369,11 +370,11 @@
     //apend source
     d3.select("svg")
       .append("text")
-      .attr("x", margin.left)
-      .attr("y", height1)
+      .attr("x", margin.left + margin.right )
+      .attr("y", height1 + margin.top + margin.bottom + 40)
       .text("Source: Data from Johns Hopkins University, July 2021")
       .style("fill", "black")
       .style("font-size", 14)
-      .style("font-family", "Arial Black");
+      .style("font-family", "Arial");
   });
 </script>
