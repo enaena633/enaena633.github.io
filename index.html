@@ -20,12 +20,12 @@
       fill: black;
       font-weight: bold;
       font-size: 14px;
-      font-family: "Arial Black", Gadget, sans-serif;
+      font-family: "Arial", Gadget, sans-serif;
     }
 
     .legend text {
       fill: black;
-      font-family: "Arial Black", Gadget, sans-serif;
+      font-family: "Arial", Gadget, sans-serif;
     }
 
     .container {
@@ -33,6 +33,10 @@
       height: 100vh;
       width: 100vw;
       align-items: center;
+    }
+
+    .pointer {
+      cursor: pointer;
     }
 
     #right {
@@ -54,6 +58,25 @@
       width: 400px;
     }
 
+    .focus text {
+        font-size: 14px;
+    }
+
+    .tooltip {
+        fill: white;
+        stroke: #000;
+    }
+
+    .tooltip-date, .tooltip-likes {
+        font-weight: bold;
+    }
+
+    #annotation {
+      font-family: Arial;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
   </style>
 </head>
 
@@ -63,7 +86,7 @@
     <div id="right">
       <div id="img-container">
         <img id="image"></img>
-        <small id="annotation"></small>
+        <medium id="annotation"></medium>
       </div>
       <div id="vaccination"></div>
     </div>
@@ -71,7 +94,7 @@
 </body>
 
 <script>
-  const margin = { top: 50, right: 20, bottom: 50, left: 120 };
+  const margin = { top: 80, right: 100, bottom: 50, left: 100 };
 
   const width1 = 700 - margin.left - margin.right;
   const height1 = 500 - margin.top - margin.bottom;
@@ -94,6 +117,46 @@
       })
       .entries(data);
 
+    // color palette
+    var res = sumstat.map(function (d) {
+      return d.key;
+    }); // list of group names
+    var color = d3
+      .scaleOrdinal()
+      .domain(res)
+      .range([
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#984ea3",
+        "#ff7f00",
+        "#ffff33",
+        "#a65628",
+        "#f781bf",
+      ]);
+
+    //append legends
+    var legend = d3
+      .select("svg")
+      .selectAll("g.legend")
+      .data(sumstat)
+      .enter()
+      .append("g")
+      .attr("class", "legend");
+
+    legend
+      .append("circle")
+      .attr("cx", (width1 * 0.8) + 60)
+      .attr("cy", (d, i) => (i * 22 + height1 / 2) + 80)
+      .attr("r", 6)
+      .style("fill", (d) => color(d.key));
+
+    legend
+      .append("text")
+      .attr("x", (width1 * 0.8 + 15) + 60)
+      .attr("y", (d, i) => (i * 22 + height1 / 2 + 5) + 80)
+      .text((d) => d.key);
+
     // Add X axis
     const x = d3
       .scaleTime()
@@ -112,7 +175,7 @@
       .attr("x", width1 / 2) //middle of the xAxis
       .attr("y", margin.bottom) //middle of the xAxis
       .attr("text-anchor", "end")
-      .text("Timeline");
+      .text("Year");
 
     // Add Y axis
     const y = d3
@@ -135,23 +198,7 @@
       .attr("text-anchor", "end")
       .text("Natural Log of Total Covid Cases");
 
-    // color palette
-    var res = sumstat.map(function (d) {
-      return d.key;
-    }); // list of group names
-    var color = d3
-      .scaleOrdinal()
-      .domain(res)
-      .range([
-        "#e41a1c",
-        "#377eb8",
-        "#4daf4a",
-        "#984ea3",
-        "#ff7f00",
-        "#ffff33",
-        "#a65628",
-        "#f781bf",
-      ]);
+
 
     // Draw the line
     svg
@@ -163,7 +210,7 @@
       .attr("stroke", function (d) {
         return color(d.key);
       })
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 3)
       .attr("d", function (d) {
         return d3
           .line()
@@ -175,15 +222,16 @@
           })(d.values);
       })
       .on("mouseover", (d2) => {
-        console.log(d2);
         // --- HOVER EFFECT HERE ---
 
+        // tooltip
+        focus.style("display", null);
         // Images
         if (d2.key === "Singapore") {
           document.getElementById("image").src = "Images/pic_Singapore_covid.jpeg";
           document.getElementById("annotation").textContent = "Timely preparation, aggressive testing, tracing of carriers, and a bit of luck has helped limit the impact of COVID-19 in Singapore. The city-state’s comparatively small population of 5.7 million people and experience of SARS in 2003 gave it the upper hand against the encroaching virus.";
         } else if (d2.key === "China") {
-          document.getElementById("image").src = "Images/pic_China_Covid.jpeg";
+          document.getElementById("image").src = "Images/pic_China_covid.jpeg";
           document.getElementById("annotation").textContent = "The early responses and measures adopted by China, such as early reporting and situation monitoring, large-scale surveillance, and preparation of medical facilities and supplies, were all successful in reducing the epidemic in China generally and in the epicenter Wuhan specifically.";
         } else if (d2.key === "Japan") {
           document.getElementById("image").src = "Images/pic_Japan_covid.jpeg";
@@ -229,6 +277,7 @@
               return d.location;
             })
             .entries(data);
+            
 
           // Add X axis
           const x = d3
@@ -248,7 +297,7 @@
             .attr("x", width2 / 2) //middle of the xAxis
             .attr("y", margin.bottom) //middle of the xAxis
             .attr("text-anchor", "end")
-            .text("Timeline");
+            .text("Year");
 
           // Add Y axis
           const y = d3
@@ -268,10 +317,11 @@
             .call(d3.axisLeft(y))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("x", -120) //middle of the xAxis
-            .attr("y", -45) //middle of the xAxis
-            .attr("text-anchor", "middle")
-            .text("Fully Vaccinated Per 100 People");
+            .attr("y", -45)
+            .attr("x", -25)
+            .attr("text-anchor", "end")
+            .text("Fully Vaccinated Per 100 People")
+            .style("font-family", "Arial")
 
           // color palette
           var res = sumstat.map(function (d) {
@@ -287,6 +337,7 @@
             "#a65628",
             "#f781bf",
           ]);
+          
 
           // Draw the line
           chart
@@ -298,7 +349,7 @@
             .attr("stroke", function (d) {
               return color(d.key);
             })
-            .attr("stroke-width", 1.5)
+            .attr("stroke-width", 3)
             .attr("d", function (d) {
 
               // --- ONLY RENDER SECOND GRAPH WHERE KEY MATCHES ---
@@ -318,60 +369,147 @@
                     );
                   })(d.values);
               }
-            });
+            })
+            .on("mouseover",() => { focus2.style("display", null); })
+            .on("mousemove", mousemoveChart)
+            
+
+            function mousemoveChart(data_2) {
+              const data = data_2.values
+              focus2.append("circle")
+                .attr("r", 5)
+                .attr("fill", color(data_2.key));
+
+              // Tooltip
+              const bisectDate = d3.bisector(function(d) { return new Date(d.date); }).left
+              const x0 = x.invert(d3.mouse(this)[0])
+              const i = bisectDate(data, x0, 1)
+              const d0 = data[i - 1]
+              const d1 = data[i]
+              const d = x0 - new Date(d0.date) > new Date(d1.date) - x0 ? d1 : d0;
+              focus2.attr("transform", "translate(" + x(new Date(d.date)) + "," + y(Number(parseFloat(d.people_fully_vaccinated_per_hundred))) + ")");
+              focus2.select(".tooltip-date").text(d.date);
+              focus2.select(".tooltip-likes").text(parseFloat(d.people_fully_vaccinated_per_hundred));
+            }
+
+          const focus2 = chart.append("g")
+            .attr("class", "focus")
+            .attr("class", "pointer")
+            .style("display", "none");
+
+          focus2.append("rect")
+              .attr("class", "tooltip")
+              .attr("width", 130)
+              .attr("height", 50)
+              .attr("x", 10)
+              .attr("y", -22)
+              .attr("rx", 4)
+              .attr("ry", 4);
+
+          focus2.append("text")
+              .attr("class", "tooltip-date")
+              .attr("x", 18)
+              .attr("y", -2)
+              .style("font-family", "Arial")
+
+          focus2.append("text")
+              .attr("x", 18)
+              .attr("y", 18)
+              .text("Persons:")
+              .style("font-family", "Arial")
+
+          focus2.append("text")
+              .attr("class", "tooltip-likes")
+              .attr("x", 90)
+              .attr("y", 18)
+              .style("font-family", "Arial")
 
           //append title
           chart
             .append("g")
             .append("text")
             .attr("x", width2 / 2)
-            .attr("y", 6)
+            .attr("y", 20)
             .attr("text-anchor", "middle")
             .text(`${d2.key} Vaccination per 100 People`)
             .style("fill", "black")
             .style("font-size", 20)
-            .style("font-family", "Arial Black");
+            .style("font-family", "Arial")
+            .style("font-weight", "bold")
         });
-      });
+      })
+      .on("mousemove", mousemove)
 
-    //append legends
-    var legend = d3
-      .select("svg")
-      .selectAll("g.legend")
-      .data(sumstat)
-      .enter()
-      .append("g")
-      .attr("class", "legend");
+      const focus = svg.append("g")
+          .attr("class", "focus")
+          .attr("class", "pointer")
+          .style("display", "none");
 
-    legend
-      .append("circle")
-      .attr("cx", (width1 * 0.8) + 60)
-      .attr("cy", (d, i) => (i * 22 + height1 / 2) + 60)
-      .attr("r", 6)
-      .style("fill", (d) => color(d.key));
+      focus.append("rect")
+          .attr("class", "tooltip")
+          .attr("width", 110)
+          .attr("height", 50)
+          .attr("x", 10)
+          .attr("y", -22)
+          .attr("rx", 4)
+          .attr("ry", 4);
 
-    legend
-      .append("text")
-      .attr("x", (width1 * 0.8 + 15) + 60)
-      .attr("y", (d, i) => (i * 22 + height1 / 2 + 5) + 60)
-      .text((d) => d.key);
+      focus.append("text")
+          .attr("class", "tooltip-date")
+          .attr("x", 18)
+          .attr("y", -2)
+          .style("font-family", "Arial")
+
+      focus.append("text")
+          .attr("x", 18)
+          .attr("y", 18)
+          .text("Cases:")
+          .style("font-family", "Arial")
+
+      focus.append("text")
+          .attr("class", "tooltip-likes")
+          .attr("x", 70)
+          .attr("y", 18)
+          .style("font-family", "Arial")
+
+      function mousemove(data_2) {
+        const data = data_2.values
+
+        focus.append("circle")
+          .attr("r", 5)
+          .attr("fill", color(data_2.key));
+
+        // Tooltip
+        const bisectDate = d3.bisector(function(d) { return new Date(d.date); }).left
+        const x0 = x.invert(d3.mouse(this)[0])
+        const i = bisectDate(data, x0, 1)
+        const d0 = data[i - 1]
+        const d1 = data[i]
+        const d = x0 - new Date(d0.date) > new Date(d1.date) - x0 ? d1 : d0;
+        focus.attr("transform", "translate(" + x(new Date(d.date)) + "," + y(Number(parseFloat(d.total_cases).toFixed(20))) + ")");
+        focus.select(".tooltip-date").text(d.date);
+        focus.select(".tooltip-likes").text(parseFloat(d.total_cases).toFixed(2));
+      }
+
 
     //append title
     d3.select("svg")
       .append("text")
-      .attr("x", (width1 / 2) + margin.left)
-      .attr("y", margin.top/1.5)
+      .attr("x", (width1 + margin.left + margin.right) / 2)
+      .attr("y", margin.top - 20)
       .attr("text-anchor", "middle")
       .text("COVID-19 Total Cases Worldwide")
       .style("fill", "black")
       .style("font-size", 28)
-      .style("font-family", "Arial Black");
+      .style("font-family", "Arial")
+      .style("font-weight", "bold")
 
     //apend source
     d3.select("svg")
       .append("text")
-      .attr("x", margin.left + margin.right )
+      .attr("x", (width1 + margin.left + margin.right) / 2)
       .attr("y", height1 + margin.top + margin.bottom + 40)
+      .attr("text-anchor", "middle")
       .text("Source: Data from Johns Hopkins University, July 2021")
       .style("fill", "black")
       .style("font-size", 14)
